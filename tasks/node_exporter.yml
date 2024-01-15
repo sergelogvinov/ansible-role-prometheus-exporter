@@ -1,0 +1,40 @@
+---
+
+- name: prometheus-node-exporter
+  apt:
+    name: "prometheus-node-exporter"
+    state: latest
+    install_recommends: no
+  become: yes
+
+- name: barematal
+  when: ansible_virtualization_role is defined and ansible_virtualization_role == "host"
+  block:
+    - name: packages for dedicated server
+      apt:
+        name: ['smartmontools','hdparm']
+      become: yes
+
+    - name: write custom metrics configs
+      copy:
+        src: "text_collector/{{ item }}"
+        dest: "{{ prometheus_home }}/node-exporter/{{ item }}"
+        owner: root
+        group: root
+        mode: 0755
+      with_items:
+        - smartmon.sh
+
+- name: node-exporter args
+  template:
+    src: "node-exporter.default.j2"
+    dest: "/etc/default/prometheus-node-exporter"
+  register: node_exporter_default
+
+- name: restart node_exporter service
+  become: yes
+  service:
+    name: prometheus-node-exporter
+    state: restarted
+    enabled: yes
+  when: node_exporter_default.changed

@@ -1,0 +1,16 @@
+[Unit]
+Description=Redis Exporter Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ prometheus_user }}
+Group={{ prometheus_user }}
+Type=simple
+
+Environment="REDIS_ADDR=127.0.0.1:6379"
+Environment="REDIS_PASSWORD={{ prometheus_redis_exporter_password }}"
+ExecStart=/usr/local/bin/redis_exporter {{ prometheus_redis_exporter_args }}
+
+[Install]
+WantedBy=multi-user.target

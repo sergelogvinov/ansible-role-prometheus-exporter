@@ -1,0 +1,14 @@
+[Unit]
+Description=Ipsec Exporter Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+Group={{ prometheus_user }}
+Type=simple
+
+ExecStart=/usr/local/bin/ipsec_exporter {{ prometheus_ipsec_exporter_args }}
+
+[Install]
+WantedBy=multi-user.target

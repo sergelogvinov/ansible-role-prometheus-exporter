@@ -1,0 +1,49 @@
+---
+
+- name: get binary
+  get_url:
+    url: "{{ prometheus_rabbitmq_exporter_distrib }}"
+    dest: "/var/cache/apt/archives/rabbitmq_exporter-{{ prometheus_rabbitmq_exporter_version }}.linux-amd64.tar.gz"
+  register: rabbitmq_exporter_downloaded
+
+- name: unarchive binary
+  unarchive:
+    src: "/var/cache/apt/archives/rabbitmq_exporter-{{ prometheus_rabbitmq_exporter_version }}.linux-amd64.tar.gz"
+    dest: /var/cache/apt/archives
+    remote_src: yes
+  when: rabbitmq_exporter_downloaded.changed
+
+- name: install binary
+  copy:
+    src: "/var/cache/apt/archives/rabbitmq_exporter-{{ prometheus_rabbitmq_exporter_version }}.linux-amd64/rabbitmq_exporter"
+    dest: /usr/local/bin/rabbitmq_exporter
+    remote_src: yes
+    owner: prometheus
+    group: prometheus
+    mode: 0755
+  register: rabbitmq_exporter_installed
+
+- name: write systemd configs
+  template:
+    src: "{{ ansible_service_mgr }}/rabbitmq_exporter.service.j2"
+    dest: "/etc/systemd/system/rabbitmq_exporter.service"
+  when: ansible_service_mgr == 'systemd'
+  register: rabbitmq_exporter_systemd_updated
+  notify: [reload systemd]
+
+- name: write systemd configs
+  template:
+    src: "{{ ansible_service_mgr }}/rabbitmq_exporter.default.j2"
+    dest: "/etc/default/rabbitmq_exporter"
+  register: rabbitmq_exporter_systemd_updated
+  notify: [reload systemd]
+
+- meta: flush_handlers
+  when: rabbitmq_exporter_systemd_updated.changed
+
+- name: restart rabbitmq_exporter service (systemd)
+  service:
+    name: rabbitmq_exporter
+    state: restarted
+    enabled: yes
+  when: rabbitmq_exporter_installed.changed or rabbitmq_exporter_systemd_updated.changed

@@ -1,0 +1,42 @@
+---
+
+- name: get binary
+  get_url:
+    url: "{{ prometheus_ipsec_exporter_distrib }}"
+    dest: "/var/cache/apt/archives/ipsec_exporter-{{ prometheus_ipsec_exporter_version }}.linux-amd64.tar.gz"
+  register: ipsec_exporter_downloaded
+
+- name: unarchive binary
+  unarchive:
+    src: "/var/cache/apt/archives/ipsec_exporter-{{ prometheus_ipsec_exporter_version }}.linux-amd64.tar.gz"
+    dest: /var/cache/apt/archives
+    remote_src: yes
+  when: ipsec_exporter_downloaded.changed
+
+- name: install binary
+  copy:
+    src: "/var/cache/apt/archives/ipsec_exporter-{{ prometheus_ipsec_exporter_version }}.linux-amd64"
+    dest: /usr/local/bin/ipsec_exporter
+    remote_src: yes
+    owner: prometheus
+    group: prometheus
+    mode: 0755
+  register: ipsec_exporter_installed
+
+- name: write systemd configs
+  template:
+    src: "{{ ansible_service_mgr }}/ipsec_exporter.service.j2"
+    dest: "/etc/systemd/system/ipsec_exporter.service"
+  when: ansible_service_mgr == 'systemd'
+  register: ipsec_exporter_systemd_updated
+  notify: [reload systemd]
+
+- meta: flush_handlers
+  when: ipsec_exporter_systemd_updated.changed
+
+- name: restart ipsec_exporter service (systemd)
+  service:
+    name: ipsec_exporter
+    state: restarted
+    enabled: yes
+  when: ipsec_exporter_installed.changed or ipsec_exporter_systemd_updated.changed

@@ -1,0 +1,5 @@
+
+prometheus_exporter_node: true
+prometheus_exporter_node_textfile_directory: /var/lib/node_exporter
+prometheus_exporter_node_address: 127.0.0.1:9100
+prometheus_exporter_node_args: --no-collector.btrfs --no-collector.fibrechannel
