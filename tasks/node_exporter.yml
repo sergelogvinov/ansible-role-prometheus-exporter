@@ -26,6 +26,7 @@
         - smartmon.sh
 
 - name: node-exporter args
+  become: yes
   template:
     src: "node-exporter.default.j2"
     dest: "/etc/default/prometheus-node-exporter"

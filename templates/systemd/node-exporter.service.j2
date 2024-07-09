@@ -1,13 +1,19 @@
 [Unit]
 Description=Prometheus exporter for machine metrics
 Documentation=https://github.com/prometheus/node_exporter
+Wants=network-online.target nss-lookup.target
+After=network-online.target nss-lookup.target
 
 [Service]
-Restart=always
+Type=simple
 User=prometheus
+
 EnvironmentFile=/etc/default/prometheus-node-exporter
 ExecStart=/usr/bin/prometheus-node-exporter $ARGS
 ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+
 TimeoutStopSec=20s
 SendSIGKILL=no
 
