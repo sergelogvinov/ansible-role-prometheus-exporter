@@ -1,5 +1,4 @@
 ---
-
 - name: get binary
   get_url:
     url: "{{ prometheus_rabbitmq_exporter_distrib }}"
@@ -14,6 +13,7 @@
   when: rabbitmq_exporter_downloaded.changed
 
 - name: install binary
+  become: true
   copy:
     src: "/var/cache/apt/archives/rabbitmq_exporter-{{ prometheus_rabbitmq_exporter_version }}.linux-amd64/rabbitmq_exporter"
     dest: /usr/local/bin/rabbitmq_exporter
@@ -24,6 +24,7 @@
   register: rabbitmq_exporter_installed
 
 - name: write systemd configs
+  become: true
   template:
     src: "{{ ansible_service_mgr }}/rabbitmq_exporter.service.j2"
     dest: "/etc/systemd/system/rabbitmq_exporter.service"
@@ -32,6 +33,7 @@
   notify: [reload systemd]
 
 - name: write systemd configs
+  become: true
   template:
     src: "{{ ansible_service_mgr }}/rabbitmq_exporter.default.j2"
     dest: "/etc/default/rabbitmq_exporter"
@@ -42,6 +44,7 @@
   when: rabbitmq_exporter_systemd_updated.changed
 
 - name: restart rabbitmq_exporter service (systemd)
+  become: true
   service:
     name: rabbitmq_exporter
     state: restarted

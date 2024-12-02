@@ -1,5 +1,4 @@
 ---
-
 - name: get binary
   get_url:
     url: "{{ prometheus_uwsgi_exporter_distrib }}"
@@ -14,6 +13,7 @@
   when: uwsgi_exporter_downloaded.changed
 
 - name: install binary
+  become: true
   copy:
     src: "/var/cache/apt/archives/uwsgi_exporter-{{ prometheus_uwsgi_exporter_version }}.linux-amd64/uwsgi_exporter"
     dest: /usr/local/bin/uwsgi_exporter
@@ -24,6 +24,7 @@
   register: uwsgi_exporter_installed
 
 - name: write systemd configs
+  become: true
   template:
     src: "{{ ansible_service_mgr }}/uwsgi_exporter.service.j2"
     dest: "/etc/systemd/system/uwsgi_exporter.service"
@@ -35,6 +36,7 @@
   when: uwsgi_exporter_systemd_updated.changed
 
 - name: restart uwsgi_exporter service (systemd)
+  become: true
   service:
     name: uwsgi_exporter
     state: restarted
