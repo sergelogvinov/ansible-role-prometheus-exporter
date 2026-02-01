@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/sergelogvinov/ansible-role-prometheus-exporter/compare/v0.5.0...v0.5.1) (2026-02-01)
+
+
+### Bug Fixes
+
+* ansible deprecation warning ([3ae5ec0](https://github.com/sergelogvinov/ansible-role-prometheus-exporter/commit/3ae5ec00c6d448070b0efeec2ed6336aacbf152f))
+
 ## [0.5.0](https://github.com/sergelogvinov/ansible-role-prometheus-exporter/compare/v0.4.0...v0.5.0) (2024-12-02)
 
 
