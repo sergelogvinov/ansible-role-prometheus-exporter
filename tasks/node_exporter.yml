@@ -7,7 +7,7 @@
     install_recommends: no
 
 - name: barematal
-  when: ansible_virtualization_role is defined and ansible_virtualization_role == "host"
+  when: ansible_facts["virtualization_role"] is defined and ansible_facts["virtualization_role"] == "host"
   block:
     - name: packages for dedicated server
       become: true
@@ -30,6 +30,12 @@
     src: "node-exporter.default.j2"
     dest: "/etc/default/prometheus-node-exporter"
   register: node_exporter_default
+
+- name: enable node_exporter service
+  become: true
+  service:
+    name: prometheus-node-exporter
+    enabled: yes
 
 - name: restart node_exporter service
   become: true

@@ -26,16 +26,16 @@
 - name: write systemd configs
   become: true
   template:
-    src: "{{ ansible_service_mgr }}/rabbitmq_exporter.service.j2"
+    src: "{{ ansible_facts['service_mgr'] }}/rabbitmq_exporter.service.j2"
     dest: "/etc/systemd/system/rabbitmq_exporter.service"
-  when: ansible_service_mgr == 'systemd'
+  when: ansible_facts["service_mgr"] == 'systemd'
   register: rabbitmq_exporter_systemd_updated
   notify: [reload systemd]
 
 - name: write systemd configs
   become: true
   template:
-    src: "{{ ansible_service_mgr }}/rabbitmq_exporter.default.j2"
+    src: "{{ ansible_facts['service_mgr'] }}/rabbitmq_exporter.default.j2"
     dest: "/etc/default/rabbitmq_exporter"
   register: rabbitmq_exporter_systemd_updated
   notify: [reload systemd]
